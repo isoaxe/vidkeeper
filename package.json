@@ -2,7 +2,7 @@
   "name": "vidkeeper",
   "version": "1.0.0",
   "description": "Download videos from the internet using the command line",
-  "main": "index.js",
+  "main": "downloader.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
