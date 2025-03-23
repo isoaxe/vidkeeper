@@ -11,8 +11,10 @@
   "type": "module",
   "dependencies": {
     "commander": "^13.1.0",
+    "fs": "^0.0.1-security",
     "jsdom": "^26.0.0",
     "node-fetch": "^3.3.2",
+    "path": "^0.12.7",
     "universal-file-downloader": "^1.0.5"
   }
 }
