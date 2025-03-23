@@ -4,7 +4,8 @@
   "description": "Download videos from the internet using the command line",
   "main": "downloader.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node downloader.js"
   },
   "author": "",
   "license": "ISC",
