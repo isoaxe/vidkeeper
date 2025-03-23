@@ -2,6 +2,8 @@ import { program } from 'commander';
 import ufd from 'universal-file-downloader';
 import jsdom from 'jsdom';
 const { JSDOM } = jsdom;
+import fs from 'fs';
+import path from 'path';
 
 program
   .version('1.0.0')
@@ -35,9 +37,17 @@ program
       const videoUrl = new URL(sources[0], url).href;
       console.log('Attempting to download:', videoUrl);
       
-      // Use the default export directly as a class
+      // Specify custom download path
+      const downloadPath = './downloads/download.mp4';
+      const directory = path.dirname(downloadPath);
+      
+      // Create directory if it doesn't exist
+      if (!fs.existsSync(directory)) {
+        fs.mkdirSync(directory, { recursive: true });
+      }
+      
       const Downloader = ufd.default || ufd;
-      const downloader = new Downloader('download.mp4');
+      const downloader = new Downloader(downloadPath);
       await downloader.downloadFile(videoUrl);
       
       console.log('Download completed successfully');
