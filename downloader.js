@@ -14,15 +14,30 @@ program
       
       // Parse DOM for media sources
       const dom = new JSDOM(html);
+      const document = dom.window.document;
+      
+      // Log all video elements found for debugging
+      console.log('Found video elements:', 
+        [...document.querySelectorAll('video')].map(el => ({
+          src: el.src,
+          sources: [...el.querySelectorAll('source')].map(s => s.src)
+        }))
+      );
+      
+      // Look for both video src and source elements
       const sources = [
-        ...dom.window.document.querySelectorAll('video, embed, iframe')
-      ].map(el => el.src).filter(Boolean);
+        ...document.querySelectorAll('video[src], video source')
+      ].map(el => el.src || el.getAttribute('src')).filter(Boolean);
 
       if (!sources.length) throw new Error('No video sources found');
       
       // Download first found source
       const videoUrl = new URL(sources[0], url).href;
-      await new ufd('download.mp4').downloadFile(videoUrl);
+      console.log('Attempting to download:', videoUrl);
+      
+      // Use the default export from universal-file-downloader
+      const downloader = ufd.default || ufd;
+      await downloader(videoUrl, 'download.mp4');
       
       console.log('Download completed successfully');
     } catch (error) {
