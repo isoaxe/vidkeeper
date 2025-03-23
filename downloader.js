@@ -35,9 +35,10 @@ program
       const videoUrl = new URL(sources[0], url).href;
       console.log('Attempting to download:', videoUrl);
       
-      // Use the default export from universal-file-downloader
-      const downloader = ufd.default || ufd;
-      await downloader(videoUrl, 'download.mp4');
+      // Use the default export directly as a class
+      const Downloader = ufd.default || ufd;
+      const downloader = new Downloader('download.mp4');
+      await downloader.downloadFile(videoUrl);
       
       console.log('Download completed successfully');
     } catch (error) {
