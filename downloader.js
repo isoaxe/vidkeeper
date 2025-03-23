@@ -4,6 +4,7 @@ import jsdom from 'jsdom';
 const { JSDOM } = jsdom;
 import fs from 'fs';
 import path from 'path';
+import { homedir } from 'os';
 
 program
   .version('1.0.0')
@@ -37,8 +38,8 @@ program
       const videoUrl = new URL(sources[0], url).href;
       console.log('Attempting to download:', videoUrl);
       
-      // Specify custom download path
-      const downloadPath = './downloads/download.mp4';
+      // Use the system Downloads folder
+      const downloadPath = path.join(homedir(), 'Downloads/vidkeeper', 'download.mp4');
       const directory = path.dirname(downloadPath);
       
       // Create directory if it doesn't exist
