@@ -25,7 +25,7 @@ program
       // Set download path to Downloads folder
       const downloadPath = path.join(homedir(), 'Downloads/vidkeeper', '%(title)s.%(ext)s');
       
-      console.log('Starting download...');
+      console.log('Downloading... please wait, this may take a while');
       
       // Use yt-dlp to get the video
       const { stdout, stderr } = await execAsync(
