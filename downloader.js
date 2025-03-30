@@ -29,7 +29,7 @@ program
       
       // Use yt-dlp to get the video
       const { stdout, stderr } = await execAsync(
-        `yt-dlp -f "bestvideo[ext=mp4][vcodec^=avc1]+bestaudio[ext=m4a]/best[ext=mp4]" --merge-output-format mp4 --postprocessor-args "ffmpeg:-c:v libx264 -preset medium -crf 23 -c:a aac -b:a 192k" "${url}" -o "${downloadPath}"`
+        `yt-dlp -f "best[ext=mp4]" --merge-output-format mp4 --no-keep-video "${url}" -o "${downloadPath}"`
       );
       
       console.log('Download completed successfully');
