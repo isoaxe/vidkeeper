@@ -31,6 +31,9 @@ program
       const { stdout, stderr } = await execAsync(
         `yt-dlp -f "best[ext=mp4]" --merge-output-format mp4 --no-keep-video "${url}" -o "${downloadPath}"`
       );
+      if (stderr) {
+        console.log('There was an error:', stderr);
+      }
       
       console.log('Download completed successfully');
       console.log(stdout);
