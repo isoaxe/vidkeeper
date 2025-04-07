@@ -4,6 +4,7 @@ import { promisify } from 'util';
 import path from 'path';
 import { homedir } from 'os';
 import readline from 'readline';
+import fs from 'fs/promises';
 
 const execAsync = promisify(exec);
 
@@ -23,20 +24,72 @@ program
       const url = await question('Enter the video URL: ');
       
       // Set download path to Downloads folder
-      const downloadPath = path.join(homedir(), 'Downloads/vidkeeper', '%(title)s.%(ext)s');
+      const downloadPath = path.join(homedir(), 'Downloads/vidkeeper');
+      const tempPath = path.join(downloadPath, 'temp');
       
-      console.log('Downloading... please wait, this may take a while');
+      // Create directories if they don't exist
+      await fs.mkdir(downloadPath, { recursive: true });
+      await fs.mkdir(tempPath, { recursive: true });
       
-      // Use yt-dlp to get the video
-      const { stdout, stderr } = await execAsync(
-        `yt-dlp -f "best[ext=mp4]" --merge-output-format mp4 --no-keep-video "${url}" -o "${downloadPath}"`
+      // First get the video title
+      const { stdout: titleStdout } = await execAsync(
+        `yt-dlp --get-title "${url}"`
       );
-      if (stderr) {
-        console.log('There was an error:', stderr);
+      const videoTitle = titleStdout.trim().replace(/[<>:"/\\|?*]/g, '_');
+      
+      // Define finalPath here so it's available for cleanup and success message
+      const finalPath = path.join(downloadPath, `${videoTitle}.mp4`);
+      
+      // Check if URL is from YouTube
+      const isYouTube = url.includes('youtube.com') || url.includes('youtu.be');
+      
+      if (isYouTube) {
+        console.log('Downloading YouTube video in best quality...');
+        
+        // Download best video quality
+        const videoPath = path.join(tempPath, 'video.mp4');
+        const { stdout: videoStdout, stderr: videoStderr } = await execAsync(
+          `yt-dlp -f "bestvideo[ext=mp4]" --no-keep-video "${url}" -o "${videoPath}"`
+        );
+        
+        if (videoStderr) {
+          console.log('Video download warning:', videoStderr);
+        }
+        
+        // Download best audio quality
+        const audioPath = path.join(tempPath, 'audio.m4a');
+        const { stdout: audioStdout, stderr: audioStderr } = await execAsync(
+          `yt-dlp -f "bestaudio[ext=m4a]" --no-keep-video "${url}" -o "${audioPath}"`
+        );
+        
+        if (audioStderr) {
+          console.log('Audio download warning:', audioStderr);
+        }
+        
+        console.log('Merging video and audio with ffmpeg for optimal quality...');
+        
+        // Merge video and audio using ffmpeg
+        await execAsync(
+          `ffmpeg -i "${videoPath}" -i "${audioPath}" -c:v copy -c:a aac -movflags +faststart "${finalPath}"`
+        );
+      } else {
+        console.log('Downloading video in best quality...');
+        
+        // For non-YouTube sites, download directly in best quality
+        const { stdout, stderr } = await execAsync(
+          `yt-dlp "${url}" -o "${finalPath}"`
+        );
+        
+        if (stderr) {
+          console.log('Download warning:', stderr);
+        }
       }
       
-      console.log('Download completed successfully');
-      console.log(stdout);
+      // Clean up temporary files
+      await fs.rm(tempPath, { recursive: true, force: true });
+      
+      console.log('Download and processing completed successfully');
+      console.log('Final video saved to:', finalPath);
     } catch (error) {
       console.error('Error:', error.message);
     } finally {
