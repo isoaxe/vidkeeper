@@ -23,6 +23,9 @@ program
     try {
       const url = await question('Enter the video URL: ');
       
+      // Ask for download type
+      const downloadType = await question('What would you like to download? (v) Video or (a) Audio [default: v]: ');
+      
       // Set download path to Downloads folder
       const downloadPath = path.join(homedir(), 'Downloads/vidkeeper');
       const tempPath = path.join(downloadPath, 'temp');
@@ -44,34 +47,50 @@ program
       const isYouTube = url.includes('youtube.com') || url.includes('youtu.be');
       
       if (isYouTube) {
-        console.log('Downloading YouTube video in best quality...');
-        
-        // Download best video quality
-        const videoPath = path.join(tempPath, 'video.mp4');
-        const { stdout: videoStdout, stderr: videoStderr } = await execAsync(
-          `yt-dlp -f "bestvideo[ext=mp4]" --no-keep-video "${url}" -o "${videoPath}"`
-        );
-        
-        if (videoStderr) {
-          console.log('Video download warning:', videoStderr);
+        if (downloadType.toLowerCase() === 'a') {
+          console.log('Downloading audio only...');
+          // Download best audio quality
+          const audioPath = path.join(tempPath, 'audio.m4a');
+          const { stdout: audioStdout, stderr: audioStderr } = await execAsync(
+            `yt-dlp -f "bestaudio[ext=m4a]" --no-keep-video "${url}" -o "${audioPath}"`
+          );
+          
+          if (audioStderr) {
+            console.log('Audio download warning:', audioStderr);
+          }
+          
+          // Move audio file to final path
+          await fs.rename(audioPath, finalPath.replace('.mp4', '.m4a'));
+        } else {
+          console.log('Downloading YouTube video in best quality...');
+          
+          // Download best video quality
+          const videoPath = path.join(tempPath, 'video.mp4');
+          const { stdout: videoStdout, stderr: videoStderr } = await execAsync(
+            `yt-dlp -f "bestvideo[ext=mp4]" --no-keep-video "${url}" -o "${videoPath}"`
+          );
+          
+          if (videoStderr) {
+            console.log('Video download warning:', videoStderr);
+          }
+          
+          // Download best audio quality
+          const audioPath = path.join(tempPath, 'audio.m4a');
+          const { stdout: audioStdout, stderr: audioStderr } = await execAsync(
+            `yt-dlp -f "bestaudio[ext=m4a]" --no-keep-video "${url}" -o "${audioPath}"`
+          );
+          
+          if (audioStderr) {
+            console.log('Audio download warning:', audioStderr);
+          }
+          
+          console.log('Merging video and audio with ffmpeg for optimal quality...');
+          
+          // Merge video and audio using ffmpeg
+          await execAsync(
+            `ffmpeg -i "${videoPath}" -i "${audioPath}" -c:v copy -c:a aac -movflags +faststart "${finalPath}"`
+          );
         }
-        
-        // Download best audio quality
-        const audioPath = path.join(tempPath, 'audio.m4a');
-        const { stdout: audioStdout, stderr: audioStderr } = await execAsync(
-          `yt-dlp -f "bestaudio[ext=m4a]" --no-keep-video "${url}" -o "${audioPath}"`
-        );
-        
-        if (audioStderr) {
-          console.log('Audio download warning:', audioStderr);
-        }
-        
-        console.log('Merging video and audio with ffmpeg for optimal quality...');
-        
-        // Merge video and audio using ffmpeg
-        await execAsync(
-          `ffmpeg -i "${videoPath}" -i "${audioPath}" -c:v copy -c:a aac -movflags +faststart "${finalPath}"`
-        );
       } else {
         console.log('Downloading video in best quality...');
         
