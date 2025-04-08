@@ -64,31 +64,31 @@ program
         } else {
           console.log('Downloading YouTube video in best quality...');
           
-          // Download best video quality
+          // Download best video quality with H.264 codec
           const videoPath = path.join(tempPath, 'video.mp4');
           const { stdout: videoStdout, stderr: videoStderr } = await execAsync(
-            `yt-dlp -f "bestvideo[ext=mp4]" --no-keep-video "${url}" -o "${videoPath}"`
+            `yt-dlp -f "bestvideo[ext=mp4][vcodec^=avc1]" --no-keep-video "${url}" -o "${videoPath}"`
           );
           
           if (videoStderr) {
             console.log('Video download warning:', videoStderr);
           }
           
-          // Download best audio quality
+          // Download best audio quality with AAC codec
           const audioPath = path.join(tempPath, 'audio.m4a');
           const { stdout: audioStdout, stderr: audioStderr } = await execAsync(
-            `yt-dlp -f "bestaudio[ext=m4a]" --no-keep-video "${url}" -o "${audioPath}"`
+            `yt-dlp -f "bestaudio[ext=m4a][acodec^=mp4a]" --no-keep-video "${url}" -o "${audioPath}"`
           );
           
           if (audioStderr) {
             console.log('Audio download warning:', audioStderr);
           }
           
-          console.log('Merging video and audio with ffmpeg for optimal quality...');
+          console.log('Merging video and audio with ffmpeg for QuickTime compatibility...');
           
-          // Merge video and audio using ffmpeg
+          // Merge video and audio using ffmpeg with QuickTime-compatible settings
           await execAsync(
-            `ffmpeg -i "${videoPath}" -i "${audioPath}" -c:v copy -c:a aac -movflags +faststart "${finalPath}"`
+            `ffmpeg -i "${videoPath}" -i "${audioPath}" -c:v copy -c:a aac -movflags +faststart -brand mp42 "${finalPath}"`
           );
         }
       } else {
