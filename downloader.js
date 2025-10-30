@@ -8,6 +8,9 @@ import fs from 'fs/promises';
 
 const execAsync = promisify(exec);
 
+// Common yt-dlp flags to reduce noise
+const YT_DLP_FLAGS = '--no-warnings --no-progress';
+
 // Create readline interface
 const rl = readline.createInterface({
   input: process.stdin,
@@ -36,7 +39,7 @@ program
       
       // First get the video title
       const { stdout: titleStdout } = await execAsync(
-        `yt-dlp --get-title "${url}"`
+        `yt-dlp ${YT_DLP_FLAGS} --get-title "${url}"`
       );
       const videoTitle = titleStdout.trim().replace(/[<>:"/\\|?*]/g, '_');
       
@@ -52,9 +55,9 @@ program
           // Download best audio quality
           const audioPath = path.join(tempPath, 'audio.m4a');
           const { stdout: audioStdout, stderr: audioStderr } = await execAsync(
-            `yt-dlp -f "bestaudio[ext=m4a]" --no-keep-video "${url}" -o "${audioPath}"`
+            `yt-dlp ${YT_DLP_FLAGS} -f "bestaudio[ext=m4a]" --no-keep-video "${url}" -o "${audioPath}"`
           );
-          
+
           if (audioStderr) {
             console.log('Audio download warning:', audioStderr);
           }
@@ -67,7 +70,7 @@ program
           // Download best video quality with H.264 codec
           const videoPath = path.join(tempPath, 'video.mp4');
           const { stdout: videoStdout, stderr: videoStderr } = await execAsync(
-            `yt-dlp -f "bestvideo[ext=mp4][vcodec^=avc1]" --no-keep-video "${url}" -o "${videoPath}"`
+            `yt-dlp ${YT_DLP_FLAGS} -f "bestvideo[ext=mp4][vcodec^=avc1]" --no-keep-video "${url}" -o "${videoPath}"`
           );
           
           if (videoStderr) {
@@ -77,7 +80,7 @@ program
           // Download best audio quality with AAC codec
           const audioPath = path.join(tempPath, 'audio.m4a');
           const { stdout: audioStdout, stderr: audioStderr } = await execAsync(
-            `yt-dlp -f "bestaudio[ext=m4a][acodec^=mp4a]" --no-keep-video "${url}" -o "${audioPath}"`
+            `yt-dlp ${YT_DLP_FLAGS} -f "bestaudio[ext=m4a][acodec^=mp4a]" --no-keep-video "${url}" -o "${audioPath}"`
           );
           
           if (audioStderr) {
@@ -96,7 +99,7 @@ program
         
         // For non-YouTube sites, download directly in best quality
         const { stdout, stderr } = await execAsync(
-          `yt-dlp "${url}" -o "${finalPath}"`
+          `yt-dlp ${YT_DLP_FLAGS} "${url}" -o "${finalPath}"`
         );
         
         if (stderr) {
