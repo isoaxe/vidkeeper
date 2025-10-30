@@ -80,6 +80,31 @@ npm start
 - Optimized for QuickTime compatibility
 - Automatic cleanup of temporary files
 
+## Troubleshooting
+
+If downloads fail or you see warnings like "nsig extraction failed", "Some formats may be missing", or references to SABR/SSAP experiments, update yt-dlp and FFmpeg and try again. YouTube regularly changes their player, and yt-dlp ships frequent fixes.
+
+- macOS (Homebrew):
+  ```bash
+  brew update
+  brew upgrade yt-dlp ffmpeg
+  ```
+
+- Linux:
+  - yt-dlp (pip):
+    ```bash
+    python3 -m pip install -U yt-dlp
+    ```
+  - FFmpeg (Debian/Ubuntu):
+    ```bash
+    sudo apt-get update && sudo apt-get install ffmpeg
+    ```
+
+- Windows:
+  ```bash
+  winget upgrade yt-dlp ffmpeg
+  ```
+
 ## License
 
 ISC 
