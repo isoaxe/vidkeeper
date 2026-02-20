@@ -82,7 +82,7 @@ npm start
 
 ## Troubleshooting
 
-If downloads fail or you see warnings like "nsig extraction failed", "Some formats may be missing", or references to SABR/SSAP experiments, update yt-dlp and FFmpeg and try again. YouTube regularly changes their player, and yt-dlp ships frequent fixes.
+If downloads fail or you see warnings, update yt-dlp and FFmpeg and try again. YouTube regularly changes their player, and yt-dlp ships frequent fixes.
 
 - macOS (Homebrew):
   ```bash
