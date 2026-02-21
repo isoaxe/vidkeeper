@@ -97,9 +97,16 @@ program
       } else {
         console.log('Downloading video in best quality...');
         
-        // For non-YouTube sites, download directly in best quality
+        // PHP/generic sites often require Referer and browser-like User-Agent
+        const { origin } = new URL(url);
+        const refererHeader = `--add-header "Referer:${origin}/"`;
+        const userAgent =
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) ' +
+          'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+        const phpWorkaroundFlags = `${refererHeader} --add-header "User-Agent:${userAgent}"`;
+        
         const { stdout, stderr } = await execAsync(
-          `yt-dlp ${YT_DLP_FLAGS} "${url}" -o "${finalPath}"`
+          `yt-dlp ${YT_DLP_FLAGS} ${phpWorkaroundFlags} "${url}" -o "${finalPath}"`
         );
         
         if (stderr) {
