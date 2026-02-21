@@ -2,6 +2,7 @@
 node_modules/
 
 # IDE files
+.vscode/
 .cursor/
 
 # System files
